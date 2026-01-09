@@ -16,8 +16,9 @@ class Database
                 $dbname = $_ENV['DB_NAME'];
                 $user = $_ENV['DB_USER'];
                 $pass = $_ENV['DB_PASS'];
+                $port = $_ENV['DB_PORT'];
 
-                self::$pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+                self::$pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8", $user, $pass);
                 self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
                 echo 'Erreur de connexion avec la base de donnée : ' . $e->getMessage();
