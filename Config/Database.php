@@ -12,13 +12,11 @@ class Database
     {
         if (self::$pdo === null) {
             try {
-                $host = $_ENV['DB_HOST'];
-                $dbname = $_ENV['DB_NAME'];
-                $user = $_ENV['DB_USER'];
-                $pass = $_ENV['DB_PASS'];
-                $port = $_ENV['DB_PORT'];
-
-                self::$pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8", $user, $pass);
+                self::$pdo = new PDO(
+                    'mysql:unix_socket=/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock;dbname=NABU;charset=utf8mb4',
+                    'root',
+                    ''
+                );
                 self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
                 echo 'Erreur de connexion avec la base de donnée : ' . $e->getMessage();
