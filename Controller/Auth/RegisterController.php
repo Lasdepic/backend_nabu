@@ -41,7 +41,7 @@ class RegisterController
         $firstName = trim($data['prenom'] ?? '');
         $email     = trim($data['email'] ?? '');
         $password  = $data['password'] ?? '';
-        $roleId    = filter_var($data['roleId'] ?? null, FILTER_VALIDATE_INT);
+        $roleId    = $data['roleId'];
 
         if (
             $lastName === '' ||
