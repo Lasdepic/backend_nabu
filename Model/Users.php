@@ -9,7 +9,7 @@ class Users
     public string $password;
     public int $roleId;
 
-    public function __construct($id, $nom, $prenom, $email, $password, $roleId)
+    public function __construct(int $id, string $nom, string $prenom, string $email, string $password, int $roleId)
     {
         $this->id = $id;
         $this->nom = $nom;
