@@ -59,7 +59,7 @@ class UsersController
                 return;
             }
 
-            // Ne pas retourner le mot de passe
+            // ne retourne pas le mot de passe
             unset($user['password']);
 
             http_response_code(200);
@@ -76,7 +76,7 @@ class UsersController
         }
     }
 
-    // Gérer la requête GET pour un user
+    // récupère un user
     public function handleGetUserRequest(): void
     {
         $id = $_GET['id'] ?? null;
