@@ -77,4 +77,23 @@ class UsersDAO{
             return null;
         }
     }
+
+    // Récupère tous les users
+    public function getAllUsers(): array
+    {
+        try {
+            $query = "SELECT 
+                        idusers AS id,
+                        last_name AS nom,
+                        first_name AS prenom,
+                        email,
+                        role_idrole AS roleId
+                      FROM users";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
 }

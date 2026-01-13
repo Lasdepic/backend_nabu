@@ -4,6 +4,7 @@ session_start();
 require_once __DIR__ . "/Config/Database.php";
 require_once __DIR__ . "/Model/Paquet.php";
 require_once __DIR__ . "/DAO/UsersDAO.php";
+require_once __DIR__ . "/Controller/UsersController.php";
 require_once __DIR__ . "/Controller/Auth/RegisterController.php";
 require_once __DIR__ . "/Controller/Auth/LoginController.php";
 require_once __DIR__ . "/DAO/PaquetDAO/DisplayPaquetDAO.php";
@@ -17,6 +18,7 @@ require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/EditPa
 
 $pdo = Database::getConnexion();
 $userDao = new UsersDAO($pdo);
+$usersController = new UsersController($userDao);
 $paquetDao = new DisplayPaquetDAO($pdo);
 $createPaquetDao = new CreatePaquetDAO($pdo);
 $deletePaquetDao = new DeletePaquetDAO($pdo);
@@ -39,10 +41,21 @@ switch ($action) {
         $login = new LoginController($userDao);
         $login->logout();
         break;
+        // Affichage des utilisateurs
+    case 'get-users':
+        $usersController->getAllUsers();
+        break;
+    case 'get-user':
+        $usersController->handleGetUserRequest();
+        break;
         // Afficher Paquet
     case 'display-paquets':
         $displayPaquet = new DisplayPaquetController($paquetDao);
         $displayPaquet->displayPaquet();
+        break;
+    case 'display-paquet':
+        $displayPaquet = new DisplayPaquetController($paquetDao);
+        $displayPaquet->displayPaquetByCote();
         break;
         // Edition de paquet
     case 'create-paquet':
