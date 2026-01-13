@@ -11,7 +11,7 @@ class DisplayPaquetDAO{
 
      // Affiche tout les paquets
 
-    public function displayAllPackges(): array
+    public function displayAllPackages(): array
     {
         try {
             $sql = "SELECT 
@@ -40,7 +40,7 @@ class DisplayPaquetDAO{
 
     // Affiche un paquet par son id
 
-    public function displayPackagesById(string $cote): ?array
+    public function displayPackageById(string $cote): ?array
     {
         try {
             $sql = "SELECT 

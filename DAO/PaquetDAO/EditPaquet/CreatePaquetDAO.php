@@ -9,7 +9,7 @@ class CreatePaquetDAO{
         $this->pdo = $pdo;
     }
 
-    public function createPackage(Paquet $paquet): bool
+    public function createPackage(Paquet $paquet): array
 {
     $sql = "
         INSERT INTO paquet (
@@ -43,23 +43,23 @@ class CreatePaquetDAO{
 
     try {
         $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([
+        $success = $stmt->execute([
             'cote' => $paquet->cote,
             'folder_name' => $paquet->folderName,
             'microfilm_image_directory' => $paquet->microFilmImage,
             'directory_of_color_images' => $paquet->imageColor,
             'archiving_search' => $paquet->searchArchiving,
-            'to_do' => $paquet->toDo,
+            'to_do' => (int)$paquet->toDo,
             'corpus_idcorpus' => $paquet->corpusId,
-            'filed_in_sip_idfiled_in_sip' => $paquet->filedSip,
+            'filed_in_sip_idfiled_in_sip' => (int)$paquet->filedSip,
             'users_idusers' => $paquet->usersId,
             'type_document_idtype_document' => $paquet->typeDocumentId,
             'status_idstatus' => $paquet->statusId,
         ]);
+        return ['success' => $success, 'error' => null];
 
-    } catch (\PDOException) {
-        return false;
+    } catch (\PDOException $e) {
+        return ['success' => false, 'error' => $e->getMessage()];
     }
 }
 }
