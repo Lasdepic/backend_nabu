@@ -11,7 +11,7 @@ class EditPaquetDAO{
 
     // Modification des éléments d'un paquet
 
-    public function editPackage(Paquet $paquet): bool
+    public function editPackage(Paquet $paquet): array
 {
     $sql = "
         UPDATE paquet SET
@@ -32,22 +32,30 @@ class EditPaquetDAO{
     try {
         $stmt = $this->pdo->prepare($sql);
 
-        return $stmt->execute([
+        $success = $stmt->execute([
             'folder_name' => $paquet->folderName,
             'microfilm_image_directory' => $paquet->microFilmImage,
             'directory_of_color_images' => $paquet->imageColor,
             'archiving_search' => $paquet->searchArchiving,
-            'to_do' => $paquet->toDo,
+            'to_do' => (int)$paquet->toDo,
             'corpus_idcorpus' => $paquet->corpusId,
-            'filed_in_sip_idfiled_in_sip' => $paquet->filedSip,
+            'filed_in_sip_idfiled_in_sip' => (int)$paquet->filedSip,
             'users_idusers' => $paquet->usersId,
             'type_document_idtype_document' => $paquet->typeDocumentId,
             'status_idstatus' => $paquet->statusId,
             'cote' => $paquet->cote,
         ]);
+        
+        $rowCount = $stmt->rowCount();
+        
+        if ($success && $rowCount === 0) {
+            return ['success' => false, 'error' => 'Paquet introuvable'];
+        }
 
-    } catch (\PDOException) {
-        return false;
+        return ['success' => $success, 'error' => null];
+
+    } catch (\PDOException $e) {
+        return ['success' => false, 'error' => $e->getMessage()];
     }
 }
 }
