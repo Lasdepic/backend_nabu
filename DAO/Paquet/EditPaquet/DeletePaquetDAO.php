@@ -9,6 +9,8 @@ class DeletePaquetDAO{
         $this->pdo = $pdo;
     }
 
+    // Supprime un paquet par son id
+    
     public function deletePackageById(string $cote): bool
     {
         $sql = "DELETE FROM paquet WHERE cote = :cote";

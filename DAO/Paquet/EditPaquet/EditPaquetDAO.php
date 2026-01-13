@@ -9,6 +9,8 @@ class EditPaquetDAO{
         $this->pdo = $pdo;
     }
 
+    // Modification des éléments d'un paquet
+
     public function editPackage(Paquet $paquet): bool
 {
     $sql = "
