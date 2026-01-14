@@ -8,46 +8,20 @@ class AuthMiddleware
     //Genere le token
 
     public static function generateToken(array $user): string
-    {
-        return self::generateAccessToken($user);
-    }
+{
+    $secret = $_ENV['JWT_SECRET'] ?? '';
+    if (!$secret) return '';
 
-    public static function generateAccessToken(array $user, ?int $ttlSeconds = null): string
-    {
-        $secret = $_ENV['JWT_SECRET'] ?? '';
-        if (!$secret) return '';
+    $now = time();
+    $payload = [
+        'sub'   => $user['id'],
+        'email' => $user['email'],
+        'role'  => $user['roleId'],
+        'iat'   => $now,
+    ];
 
-        $now = time();
-        $payload = [
-            'sub'   => $user['id'],
-            'email' => $user['email'],
-            'role'  => $user['roleId'],
-            'iat'   => $now,
-        ];
-
-        $ttl = $ttlSeconds;
-        if ($ttl === null) {
-            $envTtl = (int)($_ENV['JWT_TTL'] ?? 0); // seconds; 0 => no exp
-            $ttl = $envTtl > 0 ? $envTtl : 0;
-        }
-
-        if ($ttl > 0) {
-            $payload['exp'] = $now + $ttl;
-        }
-
-        return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
-    }
-
-    public static function generateRefreshToken(): string
-    {
-        return bin2hex(random_bytes(64));
-    }
-
-    public static function hashToken(string $token): string
-    {
-        $secret = $_ENV['JWT_SECRET'] ?? '';
-        return hash_hmac('sha256', $token, $secret);
-    }
+    return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
+}
 
     public static function verifyToken(): array
     {

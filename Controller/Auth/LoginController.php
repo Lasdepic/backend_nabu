@@ -1,19 +1,16 @@
- <?php
+<?php
 
 require_once __DIR__ . '/../../DAO/UsersDAO.php';
-require_once __DIR__ . '/../../DAO/Auth/RefreshTokenDAO.php';
 require_once __DIR__ . '/../../MiddleWare/AuthMiddleware.php';
 use Firebase\JWT\JWT;
 
 class LoginController
 {
     private UsersDAO $userDao;
-    private RefreshTokenDAO $refreshDao;
 
-    public function __construct(UsersDAO $userDao, RefreshTokenDAO $refreshDao)
+    public function __construct(UsersDAO $userDao)
     {
         $this->userDao = $userDao;
-        $this->refreshDao = $refreshDao;
     }
  public function login(): void
 {
@@ -44,28 +41,14 @@ class LoginController
         return;
     };
 
-    // Génére les tokens
-    $accessTtl = (int)($_ENV['JWT_TTL'] ?? 900); // 15 min par défaut
-    $token = AuthMiddleware::generateAccessToken($user, $accessTtl);
-    $refreshToken = AuthMiddleware::generateRefreshToken();
-
-    // Enregistre le refresh token
-    $this->refreshDao->saveRefreshToken(
-        (int)$user['id'],
-        $refreshToken,
-        (int)($_ENV['REFRESH_TTL_DAYS'] ?? 30),
-        $_SERVER['REMOTE_ADDR'] ?? null,
-        $_SERVER['HTTP_USER_AGENT'] ?? null
-    );
+    // Génére le tokeb a partir du middleWare
+    $token = AuthMiddleware::generateToken($user);
 
     http_response_code(200);
     echo json_encode([
         'success' => true,
         'message' => 'Connexion réussie',
-        'token'   => $token,
-        'accessToken' => $token,
-        'refreshToken' => $refreshToken,
-        'expiresIn' => $accessTtl > 0 ? $accessTtl : null
+        'token'   => $token
     ]);
 }
 
