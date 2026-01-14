@@ -1,6 +1,8 @@
- <?php
+<?php
 
 require_once __DIR__ . '/../../DAO/UsersDAO.php';
+require_once __DIR__ . '/../../MiddleWare/AuthMiddleware.php';
+use Firebase\JWT\JWT;
 
 class LoginController
 {
@@ -16,47 +18,18 @@ class LoginController
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Méthode non autorisée'
-        ]);
+        echo json_encode(['message' => 'Méthode non autorisée']);
         return;
     }
 
-    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-    if (str_contains($contentType, 'application/json')) {
-        $data = json_decode(file_get_contents('php://input'), true);
-    } else {
-        $data = $_POST;
-    }
+    $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 
-    if (!is_array($data)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Données invalides'
-        ]);
-        return;
-    }
-
-    $email    = trim($data['email'] ?? '');
+    $email = trim($data['email'] ?? '');
     $password = $data['password'] ?? '';
 
-    if ($email === '' || $password === '') {
+    if (!$email || !$password || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Email et mot de passe requis'
-        ]);
-        return;
-    }
-
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Email invalide'
-        ]);
+        echo json_encode(['message' => 'Email ou mot de passe invalide']);
         return;
     }
 
@@ -64,41 +37,28 @@ class LoginController
 
     if (!$user || !password_verify($password, $user['password'])) {
         http_response_code(401);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Email ou mot de passe incorrect'
-        ]);
+        echo json_encode(['message' => 'Email ou mot de passe incorrect']);
         return;
-    }
+    };
 
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    session_regenerate_id(true);
-
-    $_SESSION['user'] = [
-        'id'     => $user['id'],
-        'email'  => $user['email'],
-        'nom'    => $user['nom'],
-        'prenom' => $user['prenom'],
-        'role'   => $user['roleId']
-    ];
+    // Génére le tokeb a partir du middleWare
+    $token = AuthMiddleware::generateToken($user);
 
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'message' => 'Connexion réussie'
+        'message' => 'Connexion réussie',
+        'token'   => $token
     ]);
 }
 
-public function logout(): void
-{
-    session_start();
-    session_destroy();
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Déconnexion réussie'
-    ]);
-}
+    public function logout(): void
+    {
+        session_start();
+        session_destroy();
+        echo json_encode([
+            'success' => true,
+            'message' => 'Déconnexion réussie'
+        ]);
+    }
 }

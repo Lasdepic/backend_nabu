@@ -17,6 +17,7 @@ require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/EditPaquetDAO.php";
 require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/EditPaquetController.php";
 require_once __DIR__ . "/DAO/HistoriqueEnvoiDAO.php";
 require_once __DIR__ . "/Controller/HistoriqueEnvoiController.php";
+require_once __DIR__ . "/MiddleWare/AuthMiddleware.php";
 
 $pdo = Database::getConnexion();
 $userDao = new UsersDAO($pdo);
