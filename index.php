@@ -18,6 +18,8 @@ require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/EditPa
 require_once __DIR__ . "/DAO/HistoriqueEnvoiDAO.php";
 require_once __DIR__ . "/Controller/HistoriqueEnvoiController.php";
 require_once __DIR__ . "/MiddleWare/AuthMiddleware.php";
+require_once __DIR__ . "/DAO/CorpusDAO.php";
+require_once __DIR__ . "/Controller/CorpusController.php";
 
 $pdo = Database::getConnexion();
 $userDao = new UsersDAO($pdo);
@@ -28,6 +30,8 @@ $deletePaquetDao = new DeletePaquetDAO($pdo);
 $editPaquetDao = new EditPaquetDAO($pdo);
 $historiqueEnvoiDao = new HistoriqueEnvoiDAO($pdo);
 $historiqueEnvoiController = new HistoriqueEnvoiController($historiqueEnvoiDao);
+$corpusDao = new CorpusDAO($pdo);
+$corpusController = new CorpusController($corpusDao);
 
 $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
@@ -81,5 +85,12 @@ switch ($action) {
         break;
     case 'display-historique-envoi':
         $historiqueEnvoiController->handleGetHistoryRequest();
+        break;
+    // Corpus
+    case 'create-corpus':
+        $corpusController->createCorpus();
+        break;
+    case 'delete-corpus':
+        $corpusController->deleteCorpus();
         break;
 }
