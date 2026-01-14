@@ -1,0 +1,14 @@
+{
+  "cote": "TEST-001",
+  "folderName": "Test Folder Updated",
+  "microFilmImage": "test.jpg",
+  "imageColor": "RGB",
+  "searchArchiving": "true",
+  "comment": "Updated comment",
+  "toDo": "false",
+  "corpusId": "1",
+  "filedSip": "true",
+  "usersId": "7",
+  "typeDocumentId": "1",
+  "statusId": "1"
+}

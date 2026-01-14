@@ -58,4 +58,60 @@ class EditPaquetDAO{
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }
+
+    /**
+     * Modification partielle des éléments d'un paquet
+     * @param string $cote Identifiant du paquet à modifier
+     * @param array $fields Tableau associatif colonne => valeur (colonnes DB)
+     */
+    public function editPackagePartial(string $cote, array $fields): array
+    {
+        // Filtrer les colonnes autorisées pour éviter toute injection
+        $allowed = [
+            'folder_name',
+            'microfilm_image_directory',
+            'directory_of_color_images',
+            'archiving_search',
+            'to_do',
+            'corpus_idcorpus',
+            'filed_in_sip_idfiled_in_sip',
+            'users_idusers',
+            'type_document_idtype_document',
+            'status_idstatus',
+        ];
+
+        $setParts = [];
+        $params = [];
+
+        foreach ($fields as $col => $val) {
+            if (!in_array($col, $allowed, true)) {
+                continue;
+            }
+            $setParts[] = "$col = :$col";
+            $params[$col] = $val;
+        }
+
+        if (empty($setParts)) {
+            return ['success' => false, 'error' => 'Aucun champ valide à modifier'];
+        }
+
+        // Ajouter la date de dernière modification
+        $setSql = implode(", ", $setParts) . ", date_derniere_modification = NOW()";
+        $sql = "UPDATE paquet SET $setSql WHERE cote = :cote";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $params['cote'] = $cote;
+            $success = $stmt->execute($params);
+            $rowCount = $stmt->rowCount();
+
+            if ($success && $rowCount === 0) {
+                return ['success' => false, 'error' => 'Paquet introuvable'];
+            }
+
+            return ['success' => $success, 'error' => null];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
 }

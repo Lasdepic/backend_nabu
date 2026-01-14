@@ -67,7 +67,7 @@ switch ($action) {
         $deletePaquet->deletePaquet();
         break;
     case 'edit-paquet':
-        $editPaquet = new EditPaquetController($editPaquetDao);
-        $editPaquet->editPaquet();
+        $editPaquetController = new EditPaquetController($editPaquetDao);
+        $editPaquetController->editPaquet();
         break;
 }
