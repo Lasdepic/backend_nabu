@@ -15,6 +15,9 @@ require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/DeletePaquetDAO.php";
 require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/DeletePaquetController.php";
 require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/EditPaquetDAO.php";
 require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/EditPaquetController.php";
+require_once __DIR__ . "/DAO/HistoriqueEnvoiDAO.php";
+require_once __DIR__ . "/Controller/HistoriqueEnvoiController.php";
+require_once __DIR__ . "/MiddleWare/AuthMiddleware.php";
 
 $pdo = Database::getConnexion();
 $userDao = new UsersDAO($pdo);
@@ -23,6 +26,8 @@ $paquetDao = new DisplayPaquetDAO($pdo);
 $createPaquetDao = new CreatePaquetDAO($pdo);
 $deletePaquetDao = new DeletePaquetDAO($pdo);
 $editPaquetDao = new EditPaquetDAO($pdo);
+$historiqueEnvoiDao = new HistoriqueEnvoiDAO($pdo);
+$historiqueEnvoiController = new HistoriqueEnvoiController($historiqueEnvoiDao);
 
 $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
@@ -69,5 +74,12 @@ switch ($action) {
     case 'edit-paquet':
         $editPaquetController = new EditPaquetController($editPaquetDao);
         $editPaquetController->editPaquet();
+        break;
+    // Historique d'envoi
+    case 'display-historiques-envoi':
+        $historiqueEnvoiController->displayAllHistorySend();
+        break;
+    case 'display-historique-envoi':
+        $historiqueEnvoiController->handleGetHistoryRequest();
         break;
 }

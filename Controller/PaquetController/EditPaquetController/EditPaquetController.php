@@ -35,7 +35,7 @@ class EditPaquetController
             return;
         }
 
-        // Lecture et conversion des champs (aucun obligatoire)
+        // champs de modification
         $cote = isset($data['cote']) ? trim($data['cote']) : null;
         $folderName = isset($data['folderName']) ? trim($data['folderName']) : null;
         $microFilmImage = isset($data['microFilmImage']) ? trim($data['microFilmImage']) : null;
@@ -50,11 +50,10 @@ class EditPaquetController
         $typeDocumentId = isset($data['typeDocumentId']) ? self::toInt($data['typeDocumentId']) : null;
         $statusId = isset($data['statusId']) ? self::toInt($data['statusId']) : null;
 
-        // Date/heure en français
         $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
         $formattedDate = $now->format('d/m/Y H:i:s');
 
-        // Mise à jour du paquet
+        //  paquet a jour
         $paquet = new Paquet(
             $cote,
             $folderName,
