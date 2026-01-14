@@ -7,6 +7,8 @@ require_once __DIR__ . "/DAO/UsersDAO.php";
 require_once __DIR__ . "/Controller/UsersController.php";
 require_once __DIR__ . "/Controller/Auth/RegisterController.php";
 require_once __DIR__ . "/Controller/Auth/LoginController.php";
+require_once __DIR__ . "/Controller/Auth/RefreshTokenController.php";
+require_once __DIR__ . "/DAO/Auth/RefreshTokenDAO.php";
 require_once __DIR__ . "/DAO/PaquetDAO/DisplayPaquetDAO.php";
 require_once __DIR__ . "/Controller/PaquetController/DisplayPaquetController/DisplayPaquetController.php";
 require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/CreatePaquetDAO.php";
@@ -17,9 +19,11 @@ require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/EditPaquetDAO.php";
 require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/EditPaquetController.php";
 require_once __DIR__ . "/DAO/HistoriqueEnvoiDAO.php";
 require_once __DIR__ . "/Controller/HistoriqueEnvoiController.php";
+require_once __DIR__ . "/MiddleWare/AuthMiddleware.php";
 
 $pdo = Database::getConnexion();
 $userDao = new UsersDAO($pdo);
+$refreshTokenDao = new RefreshTokenDAO($pdo);
 $usersController = new UsersController($userDao);
 $paquetDao = new DisplayPaquetDAO($pdo);
 $createPaquetDao = new CreatePaquetDAO($pdo);
@@ -38,12 +42,20 @@ switch ($action) {
         $register->register();
         break;
     case 'login':
-        $login = new LoginController($userDao);
+        $login = new LoginController($userDao, $refreshTokenDao);
         $login->login();
         break;
     case 'logout':
-        $login = new LoginController($userDao);
+        $login = new LoginController($userDao, $refreshTokenDao);
         $login->logout();
+        break;
+    case 'refresh-token':
+        $refreshController = new RefreshTokenController($userDao, $refreshTokenDao);
+        $refreshController->refresh();
+        break;
+    case 'revoke-refresh-token':
+        $refreshController = new RefreshTokenController($userDao, $refreshTokenDao);
+        $refreshController->revoke();
         break;
         // Affichage des utilisateurs
     case 'get-users':
