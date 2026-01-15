@@ -41,8 +41,15 @@ class LoginController
         return;
     };
 
-    // Génére le tokeb a partir du middleWare
-    $token = AuthMiddleware::generateToken($user);
+    // information du user avec son role
+    $payload = [
+        'id' => $user['id'],
+        'email' => $user['email'],
+        'role' => $user['role'] 
+    ];
+
+    // Génére le token a partir du middleWare
+    $token = AuthMiddleware::generateToken($payload);
 
     http_response_code(200);
     echo json_encode([
