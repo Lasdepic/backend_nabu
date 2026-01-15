@@ -43,6 +43,7 @@ class EditPaquetController
         $searchArchiving = isset($data['searchArchiving']) ? trim($data['searchArchiving']) : null;
         $comment = isset($data['comment']) ? trim($data['comment']) : null;
 
+        $facileTest = isset($data['facileTest']) ? self::toBool($data['facileTest']) : null;
         $toDo = isset($data['toDo']) ? self::toBool($data['toDo']) : null;
         $corpusId = isset($data['corpusId']) ? self::toInt($data['corpusId']) : null;
         $filedSip = isset($data['filedSip']) ? self::toBool($data['filedSip']) : null;
@@ -61,6 +62,7 @@ class EditPaquetController
             $imageColor,
             $searchArchiving,
             $comment,
+            $facileTest ?? false,
             $toDo ?? false,
             $corpusId ?? 0,
             $filedSip ?? false,

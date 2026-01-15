@@ -9,9 +9,10 @@ class HistoriqueEnvoiDAO{
         $this->pdo = $pdo;
     }
 
-    // Affiche tous les historiques d'envoi
 
-    public function displayAllHistorySend(): array
+    // Affiche tous les envois d'un paquet par sa cote
+
+    public function displayHistorySendByPaquetCote(string $paquetCote): array
     {
         try {
             $sql = "SELECT 
@@ -20,9 +21,11 @@ class HistoriqueEnvoiDAO{
                         paquet_cote AS paquetCote,
                         date_envoi AS dateEnvoi
                     FROM historique_envoi
+                    WHERE paquet_cote = :paquetCote
                     ORDER BY date_envoi DESC";
 
-            $stmt = $this->pdo->query($sql);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':paquetCote' => $paquetCote]);
             $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             return $rows ?: [];
         } catch (\PDOException $e) {
@@ -52,4 +55,5 @@ class HistoriqueEnvoiDAO{
             return null;
         }
     }
+
 }
