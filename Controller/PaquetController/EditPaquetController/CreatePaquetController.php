@@ -49,6 +49,7 @@ class CreatePaquetController
         $searchArchiving = trim(isset($data['searchArchiving']) ? $data['searchArchiving'] : '');
         $comment = trim(isset($data['comment']) ? $data['comment'] : '');
 
+        $facileTest = self::toBool(isset($data['facileTest']) ? $data['facileTest'] : false);
         $toDo = self::toBool(isset($data['toDo']) ? $data['toDo'] : false);
         $corpusId = self::toInt(isset($data['corpusId']) ? $data['corpusId'] : null);
         $filedSip = self::toBool(isset($data['filedSip']) ? $data['filedSip'] : false);
@@ -79,6 +80,7 @@ class CreatePaquetController
             $imageColor,
             $searchArchiving,
             $comment,
+            (bool)$facileTest,
             (bool)$toDo,
             (int)$corpusId,
             (bool)$filedSip,
