@@ -16,8 +16,19 @@ class HistoriqueEnvoiController
     {
         header('Content-Type: application/json');
 
+        $paquetCote = $_GET['paquet_cote'] ?? $_GET['paquetCote'] ?? null;
+
+        if (!$paquetCote) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Parametre paquet_cote manquant'
+            ]);
+            return;
+        }
+
         try {
-            $historiques = $this->historiqueEnvoiDAO->displayAllHistorySend();
+            $historiques = $this->historiqueEnvoiDAO->displayHistorySendByPaquetCote($paquetCote);
 
             http_response_code(200);
             echo json_encode([
