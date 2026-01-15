@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../DAO/CorpusDAO.php';
+require_once __DIR__ . '/../Model/Corpus.php';
 
 class CorpusController
 {
@@ -125,4 +126,54 @@ class CorpusController
             ]
         ]);
     }
+
+    // Modifier un corpus par id
+    public function editCorpus(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        $isJson = stripos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false;
+        $data = $isJson ? json_decode(file_get_contents('php://input'), true) : $_POST;
+
+        if (!is_array($data)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Données invalides']);
+            return;
+        }
+
+        $id = (int)($_GET['id'] ?? $data['id'] ?? 0);
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Paramètre id manquant ou invalide']);
+            return;
+        }
+
+        $nameCorpus = trim($data['nameCorpus'] ?? '');
+        $descriptionCorpus = trim($data['descriptionCorpus'] ?? '');
+
+        if ($nameCorpus === '') {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Champ nameCorpus manquant ou vide']);
+            return;
+        }
+
+        $corpus = new Corpus($id, $nameCorpus, $descriptionCorpus !== '' ? $descriptionCorpus : null);
+        $result = $this->corpusDAO->editPaquetById($id, $corpus);
+
+        if (!$result['success']) {
+            http_response_code(($result['error'] ?? '') === 'Corpus introuvable' ? 404 : 500);
+            echo json_encode(['success' => false, 'message' => $result['error'] ?? 'Erreur lors de la modification du corpus']);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode(['success' => true, 'message' => 'Corpus modifié avec succès', 'data' => ['idcorpus' => $id, 'nameCorpus' => $nameCorpus, 'descriptionCorpus' => $descriptionCorpus]]);
+    }
+
 }
