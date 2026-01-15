@@ -96,4 +96,10 @@ switch ($action) {
     case 'edit-corpus':
         $corpusController->editCorpus();
         break;
+    case 'display-corpus-all':
+        $corpusController->displayAllCorpus();
+        break;
+    case 'display-corpus':
+        $corpusController->getCorpusById((int)($_GET['id'] ?? 0));
+        break;
 }

@@ -12,6 +12,73 @@ class CorpusController
         $this->corpusDAO = $corpusDAO;
     }
 
+    // Afficher tous les corpus
+    public function displayAllCorpus(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        $result = $this->corpusDAO->displayAllCorpus();
+
+        if (!$result['success']) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des corpus',
+                'error' => $result['error'] ?? null
+            ]);
+            return;
+        }
+
+        if (empty($result['data'])) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Aucun corpus trouvé']);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode(['success' => true, 'data' => $result['data']]);
+    }
+
+    // Afficher un corpus par id
+    public function getCorpusById(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Paramètre id manquant ou invalide']);
+            return;
+        }
+
+        $result = $this->corpusDAO->displayOneCorpus($id);
+
+        if (!$result['success']) {
+            $status = ($result['error'] ?? '') === 'Corpus introuvable' ? 404 : 500;
+            http_response_code($status);
+            echo json_encode([
+                'success' => false,
+                'message' => $result['error'] ?? 'Erreur lors de la récupération du corpus'
+            ]);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode(['success' => true, 'data' => $result['data']]);
+    }
+
+
     // Créer un corpus
     public function createCorpus(): void
     {
