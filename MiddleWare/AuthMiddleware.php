@@ -18,6 +18,7 @@ class AuthMiddleware
         'email' => $user['email'],
         'role'  => $user['roleId'],
         'iat'   => $now,
+        'exp'   => $now + (12 * 60 * 60),
     ];
 
     return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
