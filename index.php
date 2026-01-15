@@ -37,6 +37,16 @@ $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
 
 switch ($action) {
+    // Edition User
+        case 'update-user':
+            $usersController->updateUser();
+            break;
+        case 'update-user-password':
+            $usersController->updateUserPassword();
+            break;
+        case 'delete-user':
+            $usersController->deleteUser();
+            break;
     // Authentification
     case 'register':
         $register = new RegisterController($userDao);
