@@ -93,4 +93,7 @@ switch ($action) {
     case 'delete-corpus':
         $corpusController->deleteCorpus();
         break;
+    case 'edit-corpus':
+        $corpusController->editCorpus();
+        break;
 }
