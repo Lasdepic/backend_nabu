@@ -5,13 +5,13 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class AuthMiddleware {
-    // Vérifie le token JWT à partir du cookie
+
     public static function verifyTokenFromCookie(string $token): array
     {
         $secret = $_ENV['JWT_SECRET'] ?? '';
         if (!$secret) throw new Exception('Secret manquant');
         $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key($secret, 'HS256'));
-        // On retourne les infos utiles
+
         return [
             'id' => $decoded->sub ?? null,
             'email' => $decoded->email ?? null,
