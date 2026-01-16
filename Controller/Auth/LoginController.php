@@ -71,11 +71,23 @@ class LoginController
 }
 
     public function logout(): void
-    {
-        session_destroy();
-        echo json_encode([
-            'success' => true,
-            'message' => 'Déconnexion réussie'
-        ]);
-    }
+{
+    session_start();
+
+    $_SESSION = [];
+
+    setcookie('token', '', [
+        'path' => '/',
+        'secure' => isset($_SERVER['HTTPS']),
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+
+    session_destroy();
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Déconnexion réussie'
+    ]);
+}
 }
