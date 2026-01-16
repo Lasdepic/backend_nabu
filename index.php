@@ -1,26 +1,28 @@
 <?php
+require_once __DIR__ . '/Config/Cors.php';
 session_start();
 
-require_once __DIR__ . "/Config/Database.php";
-require_once __DIR__ . "/Model/Paquet.php";
-require_once __DIR__ . "/DAO/UsersDAO.php";
-require_once __DIR__ . "/Controller/UsersController.php";
-require_once __DIR__ . "/Controller/Auth/RegisterController.php";
-require_once __DIR__ . "/Controller/Auth/LoginController.php";
-require_once __DIR__ . "/DAO/PaquetDAO/DisplayPaquetDAO.php";
-require_once __DIR__ . "/Controller/PaquetController/DisplayPaquetController/DisplayPaquetController.php";
-require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/CreatePaquetDAO.php";
-require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/CreatePaquetController.php";
-require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/DeletePaquetDAO.php";
-require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/DeletePaquetController.php";
-require_once __DIR__ . "/DAO/PaquetDAO/EditPaquet/EditPaquetDAO.php";
-require_once __DIR__ . "/Controller/PaquetController/EditPaquetController/EditPaquetController.php";
-require_once __DIR__ . "/DAO/HistoriqueEnvoiDAO.php";
-require_once __DIR__ . "/Controller/HistoriqueEnvoiController.php";
-require_once __DIR__ . "/MiddleWare/AuthMiddleware.php";
-require_once __DIR__ . "/DAO/CorpusDAO.php";
-require_once __DIR__ . "/Controller/CorpusController.php";
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/Config/Database.php';
+require_once __DIR__ . '/Controller/Auth/AuthController.php';
+require_once __DIR__ . '/DAO/UsersDAO.php';
+require_once __DIR__ . '/Controller/UsersController.php';
+require_once __DIR__ . '/DAO/PaquetDAO/DisplayPaquetDAO.php';
+require_once __DIR__ . '/DAO/PaquetDAO/EditPaquet/CreatePaquetDAO.php';
+require_once __DIR__ . '/DAO/PaquetDAO/EditPaquet/DeletePaquetDAO.php';
+require_once __DIR__ . '/DAO/PaquetDAO/EditPaquet/EditPaquetDAO.php';
+require_once __DIR__ . '/Controller/PaquetController/DisplayPaquetController/DisplayPaquetController.php';
+require_once __DIR__ . '/Controller/PaquetController/EditPaquetController/CreatePaquetController.php';
+require_once __DIR__ . '/Controller/PaquetController/EditPaquetController/DeletePaquetController.php';
+require_once __DIR__ . '/Controller/PaquetController/EditPaquetController/EditPaquetController.php';
+require_once __DIR__ . '/DAO/HistoriqueEnvoiDAO.php';
+require_once __DIR__ . '/Controller/HistoriqueEnvoiController.php';
+require_once __DIR__ . '/DAO/CorpusDAO.php';
+require_once __DIR__ . '/Controller/CorpusController.php';
+require_once __DIR__ . '/Controller/Auth/LoginController.php';
+require_once __DIR__ . '/Controller/Auth/RegisterController.php';
 
+$authController = new AuthController();
 $pdo = Database::getConnexion();
 $userDao = new UsersDAO($pdo);
 $usersController = new UsersController($userDao);
@@ -33,19 +35,15 @@ $historiqueEnvoiController = new HistoriqueEnvoiController($historiqueEnvoiDao);
 $corpusDao = new CorpusDAO($pdo);
 $corpusController = new CorpusController($corpusDao);
 
-header("Access-Control-Allow-Origin: http://127.0.0.1:5500");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
 
 $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
 
 switch ($action) {
+        // Vérification du token JWT via cookie
+        case 'check-auth':
+            $authController->checkAuth();
+            break;
     // Edition User
         case 'update-user':
             $usersController->updateUser();

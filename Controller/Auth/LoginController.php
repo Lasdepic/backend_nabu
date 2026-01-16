@@ -45,17 +45,28 @@ class LoginController
     $payload = [
         'id' => $user['id'],
         'email' => $user['email'],
-        'role' => $user['role'] 
+        'roleId' => $user['roleId']
     ];
 
     // Génére le token a partir du middleWare
     $token = AuthMiddleware::generateToken($payload);
 
+    // Place le token dans un cookie HttpOnly
+    setcookie(
+        'token',
+        $token,
+        [
+            'expires' => time() + (12 * 60 * 60),
+            'path' => '/',
+            'secure' => isset($_SERVER['HTTPS']),
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]
+    );
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'message' => 'Connexion réussie',
-        'token'   => $token
+        'message' => 'Connexion réussie'
     ]);
 }
 
