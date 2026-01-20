@@ -1,3 +1,4 @@
+
 <?php
 require_once __DIR__ . '/Config/Cors.php';
 session_start();
@@ -21,6 +22,9 @@ require_once __DIR__ . '/DAO/CorpusDAO.php';
 require_once __DIR__ . '/Controller/CorpusController.php';
 require_once __DIR__ . '/Controller/Auth/LoginController.php';
 require_once __DIR__ . '/Controller/Auth/RegisterController.php';
+require_once __DIR__ . '/DAO/TypeDocumentDAO.php';
+require_once __DIR__ . '/Controller/TypeDocumentController.php';
+
 
 $authController = new AuthController();
 $pdo = Database::getConnexion();
@@ -34,12 +38,21 @@ $historiqueEnvoiDao = new HistoriqueEnvoiDAO($pdo);
 $historiqueEnvoiController = new HistoriqueEnvoiController($historiqueEnvoiDao);
 $corpusDao = new CorpusDAO($pdo);
 $corpusController = new CorpusController($corpusDao);
+$typeDocumentDao = new TypeDocumentDAO($pdo);
+$typeDocumentController = new TypeDocumentController($typeDocumentDao);
 
 
 $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
 
 switch ($action) {
+    // TypeDocument
+    case 'display-type-documents':
+        $typeDocumentController->displayAllTypeDocuments();
+        break;
+    case 'display-type-document':
+        $typeDocumentController->handleGetTypeDocumentRequest();
+        break;
         // Vérification du token JWT via cookie
         case 'check-auth':
             $authController->checkAuth();
