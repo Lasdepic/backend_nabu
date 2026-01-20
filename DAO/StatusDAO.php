@@ -9,8 +9,6 @@ class StatusDAO{
         $this->pdo = $pdo;
     }
 
-
-
     // Affiche tous les statuts
     public function getAllStatus(): array
     {
