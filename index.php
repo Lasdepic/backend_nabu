@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/Config/Cors.php';
 session_start();
@@ -24,7 +23,8 @@ require_once __DIR__ . '/Controller/Auth/LoginController.php';
 require_once __DIR__ . '/Controller/Auth/RegisterController.php';
 require_once __DIR__ . '/DAO/TypeDocumentDAO.php';
 require_once __DIR__ . '/Controller/TypeDocumentController.php';
-
+require_once __DIR__ . '/DAO/StatusDAO.php';
+require_once __DIR__ . '/Controller/StatusController.php';
 
 $authController = new AuthController();
 $pdo = Database::getConnexion();
@@ -40,12 +40,21 @@ $corpusDao = new CorpusDAO($pdo);
 $corpusController = new CorpusController($corpusDao);
 $typeDocumentDao = new TypeDocumentDAO($pdo);
 $typeDocumentController = new TypeDocumentController($typeDocumentDao);
+$statusDao = new StatusDAO($pdo);
+$statusController = new StatusController($statusDao);
 
 
 $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
 
 switch ($action) {
+    // Status
+    case 'get-status-all':
+        $statusController->getAllStatus();
+        break;
+    case 'get-status':
+        $statusController->getStatusById();
+        break;
     // TypeDocument
     case 'display-type-documents':
         $typeDocumentController->displayAllTypeDocuments();
