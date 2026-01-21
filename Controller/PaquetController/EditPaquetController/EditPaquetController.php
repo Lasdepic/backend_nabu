@@ -37,6 +37,7 @@ class EditPaquetController
 
         // champs de modification
         $cote = isset($data['cote']) ? trim($data['cote']) : null;
+        $oldCote = isset($data['oldCote']) ? trim($data['oldCote']) : $cote;
         $folderName = isset($data['folderName']) ? trim($data['folderName']) : null;
         $microFilmImage = isset($data['microFilmImage']) ? trim($data['microFilmImage']) : null;
         $imageColor = isset($data['imageColor']) ? trim($data['imageColor']) : null;
@@ -72,7 +73,7 @@ class EditPaquetController
             $statusId ?? 0
         );
 
-        $result = $this->paquetDao->editPackage($paquet);
+        $result = $this->paquetDao->editPackage($paquet, $oldCote);
 
         if (!$result['success']) {
             http_response_code($result['error'] === 'Paquet introuvable' ? 404 : 500);

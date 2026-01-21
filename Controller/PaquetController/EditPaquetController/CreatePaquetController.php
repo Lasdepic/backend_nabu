@@ -42,19 +42,22 @@ class CreatePaquetController
         $cote = trim(isset($data['cote']) ? $data['cote'] : '');
         $folderName = trim(isset($data['folderName']) ? $data['folderName'] : '');
         $usersId = self::toInt(isset($data['usersId']) ? $data['usersId'] : null);
-        $microFilmImage = trim(isset($data['microFilmImage']) ? $data['microFilmImage'] : '');
-        $imageColor = trim(isset($data['imageColor']) ? $data['imageColor'] : '');
-        $searchArchiving = trim(isset($data['searchArchiving']) ? $data['searchArchiving'] : '');
-        $comment = trim(isset($data['comment']) ? $data['comment'] : '');
-        $facileTest = self::toBool(isset($data['facileTest']) ? $data['facileTest'] : false);
-        $toDo = self::toBool(isset($data['toDo']) ? $data['toDo'] : false);
+        $microFilmImage = isset($data['microFilmImage']) && trim($data['microFilmImage']) !== '' ? trim($data['microFilmImage']) : null;
+        $imageColor = isset($data['imageColor']) && trim($data['imageColor']) !== '' ? trim($data['imageColor']) : null;
+        $searchArchiving = isset($data['searchArchiving']) && trim($data['searchArchiving']) !== '' ? trim($data['searchArchiving']) : null;
+        $comment = isset($data['comment']) && trim($data['comment']) !== '' ? trim($data['comment']) : null;
+        $facileTest = self::toBool(isset($data['facileTest']) ? $data['facileTest'] : false) ?? false;
+        $toDo = self::toBool(isset($data['toDo']) ? $data['toDo'] : false) ?? false;
         $corpusId = self::toInt(isset($data['corpusId']) ? $data['corpusId'] : null);
-        $filedSip = self::toBool(isset($data['filedSip']) ? $data['filedSip'] : false);
+        $filedSip = self::toBool(isset($data['filedSip']) ? $data['filedSip'] : false) ?? false;
         $typeDocumentId = self::toInt(isset($data['typeDocumentId']) ? $data['typeDocumentId'] : null);
         $statusId = self::toInt(isset($data['statusId']) ? $data['statusId'] : null);
 
-        if ($typeDocumentId === null || $typeDocumentId === 0 || $typeDocumentId === '') {
+        if ($typeDocumentId === 0 || $typeDocumentId === '') {
             $typeDocumentId = null;
+        }
+        if ($statusId === 0 || $statusId === '') {
+            $statusId = null;
         }
 
         $now = date('d/m/Y H:i:s');
@@ -65,14 +68,14 @@ class CreatePaquetController
             $imageColor,
             $searchArchiving,
             $comment,
-            (bool)$facileTest,
-            (bool)$toDo,
-            (int)$corpusId,
-            (bool)$filedSip,
-            (int)$usersId,
+            $facileTest,
+            $toDo,
+            $corpusId,
+            $filedSip,
+            $usersId,
             $now,
             $typeDocumentId,
-            (int)$statusId
+            $statusId
         );
 
         $result = $this->paquetDao->createPackage($paquet);
