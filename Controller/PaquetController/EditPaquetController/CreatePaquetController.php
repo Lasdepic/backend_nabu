@@ -38,17 +38,14 @@ class CreatePaquetController
             return;
         }
 
-        // Champs obligatoire a remplir pour crée un paquet
+        // Champs sans obligation, valeurs par défaut si non fournis
         $cote = trim(isset($data['cote']) ? $data['cote'] : '');
         $folderName = trim(isset($data['folderName']) ? $data['folderName'] : '');
         $usersId = self::toInt(isset($data['usersId']) ? $data['usersId'] : null);
-
-        // Champs optionnels avec valeurs par défaut
         $microFilmImage = trim(isset($data['microFilmImage']) ? $data['microFilmImage'] : '');
         $imageColor = trim(isset($data['imageColor']) ? $data['imageColor'] : '');
         $searchArchiving = trim(isset($data['searchArchiving']) ? $data['searchArchiving'] : '');
         $comment = trim(isset($data['comment']) ? $data['comment'] : '');
-
         $facileTest = self::toBool(isset($data['facileTest']) ? $data['facileTest'] : false);
         $toDo = self::toBool(isset($data['toDo']) ? $data['toDo'] : false);
         $corpusId = self::toInt(isset($data['corpusId']) ? $data['corpusId'] : null);
@@ -56,20 +53,8 @@ class CreatePaquetController
         $typeDocumentId = self::toInt(isset($data['typeDocumentId']) ? $data['typeDocumentId'] : null);
         $statusId = self::toInt(isset($data['statusId']) ? $data['statusId'] : null);
 
-        // Validation des champs obligatoires uniquement
-        $missing = [];
-        if ($cote === '') $missing[] = 'cote';
-        if ($folderName === '') $missing[] = 'folderName';
-        if ($usersId === null) $missing[] = 'usersId';
-
-        if (!empty($missing)) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Champs manquants ou invalides',
-                'fields' => $missing
-            ]);
-            return;
+        if ($typeDocumentId === null || $typeDocumentId === 0 || $typeDocumentId === '') {
+            $typeDocumentId = null;
         }
 
         $now = date('d/m/Y H:i:s');
@@ -86,7 +71,7 @@ class CreatePaquetController
             (bool)$filedSip,
             (int)$usersId,
             $now,
-            (int)$typeDocumentId,
+            $typeDocumentId,
             (int)$statusId
         );
 
