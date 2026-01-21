@@ -41,7 +41,7 @@ class EditPaquetController
         $microFilmImage = isset($data['microFilmImage']) ? trim($data['microFilmImage']) : null;
         $imageColor = isset($data['imageColor']) ? trim($data['imageColor']) : null;
         $searchArchiving = isset($data['searchArchiving']) ? trim($data['searchArchiving']) : null;
-        $comment = isset($data['comment']) ? trim($data['comment']) : null;
+        $comment = isset($data['comment']) ? trim($data['comment']) : '';
 
         $facileTest = isset($data['facileTest']) ? self::toBool($data['facileTest']) : null;
         $toDo = isset($data['toDo']) ? self::toBool($data['toDo']) : null;
@@ -64,7 +64,7 @@ class EditPaquetController
             $comment,
             $facileTest ?? false,
             $toDo ?? false,
-            $corpusId ?? 0,
+            $corpusId,
             $filedSip ?? false,
             $usersId ?? 0,
             $formattedDate,
