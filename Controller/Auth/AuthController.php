@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../MiddleWare/AuthMiddleware.php';
 
-class AuthController {
+class AuthController
+{
     public function checkAuth(): void
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -17,7 +18,7 @@ class AuthController {
                 'user' => [
                     'id' => $user['id'] ?? null,
                     'email' => $user['email'] ?? null,
-                    'role' => $user['role'] ?? null
+                    'roleId' => $user['role'] ?? null
                 ]
             ]);
         } catch (Exception $e) {

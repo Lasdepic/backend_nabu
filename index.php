@@ -62,20 +62,20 @@ switch ($action) {
     case 'display-type-document':
         $typeDocumentController->handleGetTypeDocumentRequest();
         break;
-        // Vérification du token JWT via cookie
-        case 'check-auth':
-            $authController->checkAuth();
-            break;
+    // Vérification du token JWT via cookie
+    case 'check-auth':
+        $authController->checkAuth();
+        break;
     // Edition User
-        case 'update-user':
-            $usersController->updateUser();
-            break;
-        case 'update-user-password':
-            $usersController->updateUserPassword();
-            break;
-        case 'delete-user':
-            $usersController->deleteUser();
-            break;
+    case 'update-user':
+        $usersController->updateUser();
+        break;
+    case 'update-user-password':
+        $usersController->updateUserPassword();
+        break;
+    case 'delete-user':
+        $usersController->deleteUser();
+        break;
     // Authentification
     case 'register':
         $register = new RegisterController($userDao);
@@ -89,14 +89,14 @@ switch ($action) {
         $login = new LoginController($userDao);
         $login->logout();
         break;
-        // Affichage des utilisateurs
+    // Affichage des utilisateurs
     case 'get-users':
         $usersController->getAllUsers();
         break;
     case 'get-user':
         $usersController->handleGetUserRequest();
         break;
-        // Afficher Paquet
+    // Afficher Paquet
     case 'display-paquets':
         $displayPaquet = new DisplayPaquetController($paquetDao);
         $displayPaquet->displayPaquet();
@@ -105,7 +105,7 @@ switch ($action) {
         $displayPaquet = new DisplayPaquetController($paquetDao);
         $displayPaquet->displayPaquetByCote();
         break;
-        // Edition de paquet
+    // Edition de paquet
     case 'create-paquet':
         $createPaquet = new CreatePaquetController($createPaquetDao);
         $createPaquet->createPaquet();
