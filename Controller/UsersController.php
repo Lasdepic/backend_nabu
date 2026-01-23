@@ -16,10 +16,10 @@ class UsersController
     public function getAllUsers(): void
     {
         header('Content-Type: application/json');
-        
+
         try {
             $users = $this->usersDAO->getAllUsers();
-            
+
             if (empty($users)) {
                 http_response_code(404);
                 echo json_encode([
@@ -47,10 +47,10 @@ class UsersController
     public function getUserById(int $id): void
     {
         header('Content-Type: application/json');
-        
+
         try {
             $user = $this->usersDAO->findById($id);
-            
+
             if (!$user) {
                 http_response_code(404);
                 echo json_encode([
@@ -81,7 +81,7 @@ class UsersController
     public function handleGetUserRequest(): void
     {
         $id = $_GET['id'] ?? null;
-        
+
         if (!$id) {
             header('Content-Type: application/json');
             http_response_code(400);
@@ -151,6 +151,14 @@ class UsersController
         header('Content-Type: application/json');
         $input = json_decode(file_get_contents('php://input'), true);
         $id = $input['id'] ?? null;
+        // Vérifier le rôle de l'utilisateur courant (doit être admin)
+        session_start();
+        $currentUser = $_SESSION['user'] ?? null;
+        if (!$currentUser || !isset($currentUser['roleId']) || $currentUser['roleId'] != 1) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé : seuls les administrateurs peuvent supprimer un utilisateur.']);
+            return;
+        }
         if (!$id) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'ID manquant']);
