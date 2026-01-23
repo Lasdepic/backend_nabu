@@ -69,8 +69,8 @@ class EditPaquetController
             $filedSip ?? false,
             $usersId ?? 0,
             $formattedDate,
-            $typeDocumentId ?? 0,
-            $statusId ?? 0
+            $typeDocumentId,
+            $statusId
         );
 
         $result = $this->paquetDao->editPackage($paquet, $oldCote);
