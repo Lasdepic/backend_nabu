@@ -51,13 +51,24 @@ class CreatePaquetController
         $corpusId = self::toInt(isset($data['corpusId']) ? $data['corpusId'] : null);
         $filedSip = self::toBool(isset($data['filedSip']) ? $data['filedSip'] : false) ?? false;
         $typeDocumentId = self::toInt(isset($data['typeDocumentId']) ? $data['typeDocumentId'] : null);
-        $statusId = self::toInt(isset($data['statusId']) ? $data['statusId'] : null);
 
+        // Définir le statusId par défaut à INEXISTANT si non fourni ou vide
+        $statusId = self::toInt(isset($data['statusId']) ? $data['statusId'] : null);
         if ($typeDocumentId === 0 || $typeDocumentId === '') {
             $typeDocumentId = null;
         }
-        if ($statusId === 0 || $statusId === '') {
-            $statusId = null;
+        // Si statusId n'est pas fourni ou vide, on cherche l'ID du statut 'INEXISTANT'
+        if ($statusId === 0 || $statusId === '' || $statusId === null) {
+            // Connexion à la base de données
+            $db = Database::getConnexion();
+            $stmt = $db->prepare("SELECT idstatus FROM status WHERE UPPER(name_status) = 'INEXISTANT' LIMIT 1");
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row && isset($row['idstatus'])) {
+                $statusId = (int)$row['idstatus'];
+            } else {
+                $statusId = null;
+            }
         }
 
         $now = date('d/m/Y H:i:s');
@@ -120,5 +131,3 @@ class CreatePaquetController
         return null;
     }
 }
-
-
