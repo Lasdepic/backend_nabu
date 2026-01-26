@@ -14,7 +14,6 @@ class DeletePaquetDAO
 
     public function deletePackageById(string $cote): array
     {
-        // On supprime d'abord l'historique d'envoi lié au paquet, puis le paquet lui-même, dans une transaction
         try {
             $this->pdo->beginTransaction();
 
