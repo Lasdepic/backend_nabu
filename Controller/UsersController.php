@@ -151,12 +151,24 @@ class UsersController
         header('Content-Type: application/json');
         $input = json_decode(file_get_contents('php://input'), true);
         $id = $input['id'] ?? null;
-        // Vérifier le rôle de l'utilisateur courant (doit être admin)
-        session_start();
-        $currentUser = $_SESSION['user'] ?? null;
-        if (!$currentUser || !isset($currentUser['roleId']) || $currentUser['roleId'] != 1) {
+        // Vérifier le rôle de l'utilisateur
+        require_once __DIR__ . '/../MiddleWare/AuthMiddleware.php';
+        $token = $_COOKIE['token'] ?? '';
+        if (!$token) {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Accès refusé : seuls les administrateurs peuvent supprimer un utilisateur.']);
+            echo json_encode(['success' => false, 'message' => 'Token manquant.']);
+            return;
+        }
+        try {
+            $user = AuthMiddleware::verifyTokenFromCookie($token);
+            if (!isset($user['role']) || $user['role'] != 1) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'Accès refusé : seuls les administrateurs peuvent supprimer un utilisateur.']);
+                return;
+            }
+        } catch (Exception $e) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Token invalide.']);
             return;
         }
         if (!$id) {
