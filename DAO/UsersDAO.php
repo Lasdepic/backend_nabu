@@ -96,4 +96,48 @@ class UsersDAO{
             return [];
         }
     }
+    // Met à jour un utilisateur par ID
+    public function updateUser(int $id, string $nom, string $prenom, string $email, ?string $passwordHash, int $roleId): bool
+    {
+        try {
+            $sql = "UPDATE users SET last_name = :nom, first_name = :prenom, email = :email, role_idrole = :roleId WHERE idusers = :id";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([
+                ':nom' => $nom,
+                ':prenom' => $prenom,
+                ':email' => $email,
+                ':roleId' => $roleId,
+                ':id' => $id
+            ]);
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    // Met à jour uniquement le mot de passe d'un utilisateur
+    public function updatePassword(int $id, string $passwordHash): bool
+    {
+        try {
+            $sql = "UPDATE users SET password = :password WHERE idusers = :id";
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute([
+                ':password' => $passwordHash,
+                ':id' => $id
+            ]);
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    // Supprime un utilisateur par ID
+    public function deleteUser(int $id): bool
+    {
+        $sql = "DELETE FROM users WHERE idusers = :id";
+        $stmt = $this->pdo->prepare($sql);
+        try {
+            return $stmt->execute([':id' => $id]);
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
 }
