@@ -3,6 +3,18 @@ require_once __DIR__ . '/Config/Cors.php';
 session_start();
 
 require_once __DIR__ . '/vendor/autoload.php';
+
+// Charger les variables d'environnement
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+// --- Route proxy Vitam ---
+if (isset($_GET['vitam-proxy'])) {
+    require_once __DIR__ . '/Controller/VitamProxyController.php';
+    $proxy = new \Controller\VitamProxyController();
+    $proxy->relay();
+    exit;
+}
 require_once __DIR__ . '/Config/Database.php';
 require_once __DIR__ . '/Controller/Auth/AuthController.php';
 require_once __DIR__ . '/DAO/UsersDAO.php';
