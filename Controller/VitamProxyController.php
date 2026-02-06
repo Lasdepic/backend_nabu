@@ -136,7 +136,7 @@ class VitamProxyController
 
         $options = [
             'http' => $httpOptions,
-            'https' => $httpOptions, // Important pour HTTPS
+            'https' => $httpOptions, 
             'ssl' => [
                 'verify_peer'       => false,
                 'verify_peer_name'  => false,
