@@ -1,28 +1,41 @@
-<?php
 
+<?php
+use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-class AuthMiddleware
-{
+class AuthMiddleware {
+
+    public static function verifyTokenFromCookie(string $token): array
+    {
+        $secret = $_ENV['JWT_SECRET'] ?? '';
+        if (!$secret) throw new Exception('Secret manquant');
+        $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key($secret, 'HS256'));
+
+        return [
+            'id' => $decoded->sub ?? null,
+            'email' => $decoded->email ?? null,
+            'role' => $decoded->role ?? null
+        ];
+    }
     //Genere le token
 
     public static function generateToken(array $user): string
-{
-    $secret = $_ENV['JWT_SECRET'] ?? '';
-    if (!$secret) return '';
+    {
+        $secret = $_ENV['JWT_SECRET'] ?? '';
+        if (!$secret) return '';
 
-    $now = time();
-    $payload = [
-        'sub'   => $user['id'],
-        'email' => $user['email'],
-        'role'  => $user['roleId'],
-        'iat'   => $now,
-        'exp'   => $now + (12 * 60 * 60),
-    ];
+        $now = time();
+        $payload = [
+            'sub'   => $user['id'],
+            'email' => $user['email'],
+            'role'  => $user['roleId'],
+            'iat'   => $now,
+            'exp'   => $now + (12 * 60 * 60),
+        ];
 
-    return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
-}
+        return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
+    }
 
     public static function verifyToken(): array
     {

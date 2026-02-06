@@ -73,5 +73,35 @@ class CorpusDAO
 			return ['success' => false, 'error' => $e->getMessage()];
 		}
 	}
+
+	public function displayAllCorpus(){
+		$sql = "SELECT idcorpus, name_corpus, desciption_corpus FROM corpus";
+
+		try {
+			$stmt = $this->pdo->query($sql);
+			$data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+			return ['success' => true, 'data' => $data, 'error' => null];
+		} catch (\PDOException $e) {
+			return ['success' => false, 'error' => $e->getMessage()];
+		}
+	}
+
+	public function displayOneCorpus(int $idCorpus){
+		$sql = "SELECT idcorpus, name_corpus, desciption_corpus FROM corpus WHERE idcorpus = :id";
+
+		try {
+			$stmt = $this->pdo->prepare($sql);
+			$stmt->execute(['id' => $idCorpus]);
+			$data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+			if (!$data) {
+				return ['success' => false, 'error' => 'Corpus introuvable'];
+			}
+
+			return ['success' => true, 'data' => $data, 'error' => null];
+		} catch (\PDOException $e) {
+			return ['success' => false, 'error' => $e->getMessage()];
+		}
+	}
 }
 
