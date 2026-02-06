@@ -4,6 +4,10 @@ session_start();
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Charger les variables d'environnement
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 // --- Route proxy Vitam ---
 if (isset($_GET['vitam-proxy'])) {
     require_once __DIR__ . '/Controller/VitamProxyController.php';

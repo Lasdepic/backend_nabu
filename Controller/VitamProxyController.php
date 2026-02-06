@@ -9,8 +9,12 @@ class VitamProxyController
 
     public function __construct()
     {
-        $this->vitamUrl   = rtrim(getenv('VITAM_URL'), '/');
-        $this->vitamToken = getenv('VITAM_TOKEN');
+        $this->vitamUrl   = rtrim(getenv('VITAM_URL') ?: ($_ENV['VITAM_URL'] ?? ''), '/');
+        $this->vitamToken = getenv('VITAM_TOKEN') ?: ($_ENV['VITAM_TOKEN'] ?? '');
+        
+        if (empty($this->vitamUrl) || empty($this->vitamToken)) {
+            error_log("VitamProxy: Configuration manquante - URL: " . ($this->vitamUrl ?: 'vide') . " Token: " . (empty($this->vitamToken) ? 'vide' : 'défini'));
+        }
     }
 
     /**
@@ -29,16 +33,63 @@ class VitamProxyController
         $method = $_SERVER['REQUEST_METHOD'];
         $url    = "{$this->vitamUrl}/index.php?action=" . urlencode($action);
 
-        $headers = $this->buildHeaders();
-        $options = $this->buildHttpOptions($method, $headers);
-
-        // 3. Appel vers Vitam
-        $context = stream_context_create($options);
-        $response = file_get_contents($url, false, $context);
-
+        // 3. Utilisation de cURL pour gérer les gros fichiers
+        $ch = curl_init($url);
+        
+        // Configuration de base
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        
+        // Headers
+        $headers = [
+            'Authorization: Bearer ' . $this->vitamToken,
+        ];
+        
+        if (!empty($_SERVER['HTTP_X_FILE_NAME'])) {
+            $headers[] = 'X-File-Name: ' . $_SERVER['HTTP_X_FILE_NAME'];
+        }
+        if (!empty($_SERVER['HTTP_X_FORCE_REPLACE'])) {
+            $headers[] = 'X-Force-Replace: ' . $_SERVER['HTTP_X_FORCE_REPLACE'];
+        }
+        if (!empty($_SERVER['HTTP_CONTENT_RANGE'])) {
+            $headers[] = 'Content-Range: ' . $_SERVER['HTTP_CONTENT_RANGE'];
+        }
+        
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+        // Méthode et body
+        if ($method === 'PUT') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            $putData = fopen('php://input', 'r');
+            curl_setopt($ch, CURLOPT_INFILE, $putData);
+            curl_setopt($ch, CURLOPT_INFILESIZE, (int)$_SERVER['CONTENT_LENGTH']);
+        } elseif ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents('php://input'));
+        } elseif ($method !== 'GET') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        }
+        
+        // Exécution
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            error_log("VitamProxy cURL Error: " . $error);
+            if (isset($putData)) fclose($putData);
+            $this->error(502, 'Erreur de connexion à l\'API Vitam: ' . $error);
+            return;
+        }
+        
+        if (isset($putData)) fclose($putData);
+        
         // 4. Retour de la réponse au client
-        $statusCode = $this->getHttpStatusCode($http_response_header ?? []);
-        http_response_code($statusCode);
+        http_response_code($httpCode);
         header('Content-Type: application/json');
         echo $response;
     }
@@ -55,7 +106,7 @@ class VitamProxyController
         $optionalHeaders = [
             'HTTP_X_FILE_NAME'      => 'X-File-Name',
             'HTTP_X_FORCE_REPLACE'  => 'X-Force-Replace',
-            'HTTP_CONTENT_RANGE'   => 'Content-Range',
+            'HTTP_CONTENT_RANGE'    => 'Content-Range',
         ];
 
         foreach ($optionalHeaders as $serverKey => $headerName) {
@@ -72,17 +123,25 @@ class VitamProxyController
      */
     private function buildHttpOptions(string $method, array $headers): array
     {
-        $options = [
-            'http' => [
-                'method'        => $method,
-                'header'        => $headers,
-                'ignore_errors' => true,
-            ]
+        $httpOptions = [
+            'method'        => $method,
+            'header'        => $headers,
+            'ignore_errors' => true,
+            'timeout'       => 300,
         ];
 
         if (in_array($method, ['POST', 'PUT'], true)) {
-            $options['http']['content'] = file_get_contents('php://input');
+            $httpOptions['content'] = file_get_contents('php://input');
         }
+
+        $options = [
+            'http' => $httpOptions,
+            'https' => $httpOptions, // Important pour HTTPS
+            'ssl' => [
+                'verify_peer'       => false,
+                'verify_peer_name'  => false,
+            ]
+        ];
 
         return $options;
     }
