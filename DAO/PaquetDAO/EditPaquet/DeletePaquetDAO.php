@@ -17,6 +17,19 @@ class DeletePaquetDAO
         try {
             $this->pdo->beginTransaction();
 
+            $sqlCheck = "SELECT s.name_status FROM paquet p JOIN status s ON p.status_idstatus = s.idstatus WHERE p.cote = :cote LIMIT 1";
+            $stmtCheck = $this->pdo->prepare($sqlCheck);
+            $stmtCheck->execute(['cote' => $cote]);
+            $row = $stmtCheck->fetch(\PDO::FETCH_ASSOC);
+            if (!$row) {
+                $this->pdo->rollBack();
+                return ['success' => false, 'error' => 'Paquet introuvable'];
+            }
+            if (strtoupper($row['name_status']) === 'ENVOI_OK') {
+                $this->pdo->rollBack();
+                return ['success' => false, 'error' => 'Impossible de supprimer un paquet avec le statut ENVOI_OK'];
+            }
+
             // Supprimer l'historique d'envoi lié au paquet
             $sqlHistorique = "DELETE FROM historique_envoi WHERE paquet_cote = :cote";
             $stmtHistorique = $this->pdo->prepare($sqlHistorique);
