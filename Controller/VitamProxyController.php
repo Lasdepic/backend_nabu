@@ -58,6 +58,11 @@ class VitamProxyController
         if (!empty($_SERVER['HTTP_CONTENT_RANGE'])) {
             $headers[] = 'Content-Range: ' . $_SERVER['HTTP_CONTENT_RANGE'];
         }
+
+        // Requis pour certaines actions CINES (ex: envoi-statut)
+        if (!empty($_SERVER['HTTP_X_ITEM_ID'])) {
+            $headers[] = 'X-Item-Id: ' . $_SERVER['HTTP_X_ITEM_ID'];
+        }
         
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         
