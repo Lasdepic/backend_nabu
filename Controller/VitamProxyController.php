@@ -64,9 +64,29 @@ class VitamProxyController
         // Méthode et body
         if ($method === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            $putData = fopen('php://input', 'r');
+            curl_setopt($ch, CURLOPT_UPLOAD, true);
+
+            $putData = fopen('php://input', 'rb');
             curl_setopt($ch, CURLOPT_INFILE, $putData);
-            curl_setopt($ch, CURLOPT_INFILESIZE, (int)$_SERVER['CONTENT_LENGTH']);
+
+            $infileSize = null;
+            if (isset($_SERVER['CONTENT_LENGTH']) && is_numeric($_SERVER['CONTENT_LENGTH'])) {
+                $infileSize = (int)$_SERVER['CONTENT_LENGTH'];
+            }
+            if (($infileSize === null || $infileSize <= 0) && !empty($_SERVER['HTTP_CONTENT_RANGE'])) {
+                if (preg_match('/bytes\s+(\d+)-(\d+)\/(\d+)/', $_SERVER['HTTP_CONTENT_RANGE'], $matches)) {
+                    $start = (int)$matches[1];
+                    $end = (int)$matches[2];
+                    $infileSize = max(0, $end - $start + 1);
+                }
+            }
+            if ($infileSize !== null && $infileSize > 0) {
+                curl_setopt($ch, CURLOPT_INFILESIZE, $infileSize);
+            }
+
+            // Évite certains problèmes de "Expect: 100-continue" sur les gros PUT
+            $headers[] = 'Expect:';
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         } elseif ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents('php://input'));
@@ -82,11 +102,13 @@ class VitamProxyController
             $error = curl_error($ch);
             error_log("VitamProxy cURL Error: " . $error);
             if (isset($putData)) fclose($putData);
+            curl_close($ch);
             $this->error(502, 'Erreur de connexion à l\'API Vitam: ' . $error);
             return;
         }
         
         if (isset($putData)) fclose($putData);
+        curl_close($ch);
         
         // 4. Retour de la réponse au client
         http_response_code($httpCode);
