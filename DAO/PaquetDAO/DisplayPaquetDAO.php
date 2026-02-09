@@ -15,22 +15,24 @@ class DisplayPaquetDAO{
     {
         try {
             $sql = "SELECT 
-                        cote,
-                        folder_name AS folderName,
-                        microfilm_image_directory AS microFilmImage,
-                        directory_of_color_images AS imageColor,
-                        archiving_search AS searchArchiving,
-                        commentaire,
-                        facile_test AS facileTest,
-                        to_do AS toDo,
-                        corpus_idcorpus AS corpusId,
-                        filed_in_sip_idfiled_in_sip AS filedSip,
-                        users_idusers AS usersId,
-                        date_derniere_modification AS lastmodifDate,
-                        type_document_idtype_document AS typeDocumentId,
-                        status_idstatus AS statusId
-                    FROM paquet
-                    ORDER BY cote";
+                        p.cote,
+                        p.folder_name AS folderName,
+                        p.microfilm_image_directory AS microFilmImage,
+                        p.directory_of_color_images AS imageColor,
+                        p.archiving_search AS searchArchiving,
+                        p.commentaire,
+                        p.facile_test AS facileTest,
+                        p.to_do AS toDo,
+                        p.corpus_idcorpus AS corpusId,
+                        c.name_corpus AS corpusName,
+                        p.filed_in_sip_idfiled_in_sip AS filedSip,
+                        p.users_idusers AS usersId,
+                        p.date_derniere_modification AS lastmodifDate,
+                        p.type_document_idtype_document AS typeDocumentId,
+                        p.status_idstatus AS statusId
+                    FROM paquet p
+                    LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
+                    ORDER BY p.cote";
 
             $stmt = $this->pdo->query($sql);
             $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -46,22 +48,24 @@ class DisplayPaquetDAO{
     {
         try {
             $sql = "SELECT 
-                        cote,
-                        folder_name AS folderName,
-                        microfilm_image_directory AS microFilmImage,
-                        directory_of_color_images AS imageColor,
-                        archiving_search AS searchArchiving,
-                        commentaire,
-                        facile_test AS facileTest,
-                        to_do AS toDo,
-                        corpus_idcorpus AS corpusId,
-                        filed_in_sip_idfiled_in_sip AS filedSip,
-                        users_idusers AS usersId,
-                        date_derniere_modification AS lastmodifDate,
-                        type_document_idtype_document AS typeDocumentId,
-                        status_idstatus AS statusId
-                    FROM paquet
-                    WHERE cote = :cote
+                        p.cote,
+                        p.folder_name AS folderName,
+                        p.microfilm_image_directory AS microFilmImage,
+                        p.directory_of_color_images AS imageColor,
+                        p.archiving_search AS searchArchiving,
+                        p.commentaire,
+                        p.facile_test AS facileTest,
+                        p.to_do AS toDo,
+                        p.corpus_idcorpus AS corpusId,
+                        c.name_corpus AS corpusName,
+                        p.filed_in_sip_idfiled_in_sip AS filedSip,
+                        p.users_idusers AS usersId,
+                        p.date_derniere_modification AS lastmodifDate,
+                        p.type_document_idtype_document AS typeDocumentId,
+                        p.status_idstatus AS statusId
+                    FROM paquet p
+                    LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
+                    WHERE p.cote = :cote
                     LIMIT 1";
 
             $stmt = $this->pdo->prepare($sql);
