@@ -10,6 +10,31 @@ class HistoriqueEnvoiDAO{
     }
 
 
+    // Enregistre un envoi vers le CINES (itemsId + paquetCote + date d'envoi)
+    public function createHistorySend(string $itemsId, string $paquetCote): array
+    {
+        $sql = "INSERT INTO historique_envoi (items_id, paquet_cote, date_envoi)
+                VALUES (:itemsId, :paquetCote, NOW())";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $success = $stmt->execute([
+                'itemsId' => $itemsId,
+                'paquetCote' => $paquetCote,
+            ]);
+
+            if (!$success) {
+                return ['success' => false, 'error' => 'Insertion échouée'];
+            }
+
+            $id = (int)$this->pdo->lastInsertId();
+            return ['success' => true, 'id' => $id, 'error' => null];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+
     // Affiche tous les envois d'un paquet par sa cote
 
     public function displayHistorySendByPaquetCote(string $paquetCote): array
