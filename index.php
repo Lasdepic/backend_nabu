@@ -137,6 +137,9 @@ switch ($action) {
     case 'display-historique-envoi':
         $historiqueEnvoiController->handleGetHistoryRequest();
         break;
+    case 'create-historique-envoi':
+        $historiqueEnvoiController->createHistorySend();
+        break;
     // Corpus
     case 'create-corpus':
         $corpusController->createCorpus();
