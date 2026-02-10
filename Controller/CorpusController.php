@@ -120,6 +120,26 @@ class CorpusController
         $result = $this->corpusDAO->create($nameCorpus, $descriptionCorpus !== '' ? $descriptionCorpus : null);
 
         if (!$result['success']) {
+            $error = (string)($result['error'] ?? '');
+
+            if ($error === 'DUPLICATE_NAME') {
+                http_response_code(409);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Un corpus avec ce nom existe déjà.'
+                ]);
+                return;
+            }
+
+            if ($error === 'INVALID_NAME') {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Le nom du corpus est invalide.'
+                ]);
+                return;
+            }
+
             http_response_code(500);
             echo json_encode([
                 'success' => false,
@@ -234,7 +254,21 @@ class CorpusController
         $result = $this->corpusDAO->editPaquetById($id, $corpus);
 
         if (!$result['success']) {
-            http_response_code(($result['error'] ?? '') === 'Corpus introuvable' ? 404 : 500);
+            $error = (string)($result['error'] ?? '');
+
+            if ($error === 'DUPLICATE_NAME') {
+                http_response_code(409);
+                echo json_encode(['success' => false, 'message' => 'Un corpus avec ce nom existe déjà.']);
+                return;
+            }
+
+            if ($error === 'INVALID_NAME') {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Le nom du corpus est invalide.']);
+                return;
+            }
+
+            http_response_code($error === 'Corpus introuvable' ? 404 : 500);
             echo json_encode(['success' => false, 'message' => $result['error'] ?? 'Erreur lors de la modification du corpus']);
             return;
         }
