@@ -12,6 +12,16 @@ class CorpusDAO
 	// Crée un corpus et retourne l'id inséré
 	public function create(string $nameCorpus, ?string $descriptionCorpus = null): array
 	{
+		$nameCorpus = trim($nameCorpus);
+		if ($nameCorpus === '') {
+			return ['success' => false, 'error' => 'INVALID_NAME'];
+		}
+
+		$existing = $this->findIdByName($nameCorpus);
+		if ($existing !== null) {
+			return ['success' => false, 'error' => 'DUPLICATE_NAME'];
+		}
+
 		$sql = "INSERT INTO corpus (name_corpus, desciption_corpus) VALUES (:name_corpus, :desciption_corpus)";
 
 		try {
@@ -31,11 +41,44 @@ class CorpusDAO
 		}
 	}
 
+	private function findIdByName(string $nameCorpus): ?int
+	{
+		$sql = "SELECT idcorpus FROM corpus WHERE LOWER(TRIM(name_corpus)) = LOWER(:name_corpus) LIMIT 1";
+
+		try {
+			$stmt = $this->pdo->prepare($sql);
+			$stmt->execute(['name_corpus' => $nameCorpus]);
+			$id = $stmt->fetchColumn();
+			if ($id === false || $id === null) {
+				return null;
+			}
+			return (int)$id;
+		} catch (\PDOException $e) {
+			return null;
+		}
+	}
+
 	public function editPaquetById(int $idCorpus, Corpus $corpus): array
 	{
+		$corpus->nameCorpus = trim((string)$corpus->nameCorpus);
+		if ($corpus->nameCorpus === '') {
+			return ['success' => false, 'error' => 'INVALID_NAME'];
+		}
+
+		$sqlCheck = "SELECT idcorpus FROM corpus WHERE LOWER(TRIM(name_corpus)) = LOWER(:name_corpus) AND idcorpus <> :id LIMIT 1";
 		$sql = "UPDATE corpus SET name_corpus = :name_corpus, desciption_corpus = :desciption_corpus WHERE idcorpus = :id";
 
 		try {
+			$stmtCheck = $this->pdo->prepare($sqlCheck);
+			$stmtCheck->execute([
+				'name_corpus' => $corpus->nameCorpus,
+				'id' => $idCorpus,
+			]);
+			$existing = $stmtCheck->fetchColumn();
+			if ($existing !== false && $existing !== null) {
+				return ['success' => false, 'error' => 'DUPLICATE_NAME'];
+			}
+
 			$stmt = $this->pdo->prepare($sql);
 			$success = $stmt->execute([
 				'name_corpus' => $corpus->nameCorpus,
