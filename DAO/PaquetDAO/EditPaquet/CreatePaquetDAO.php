@@ -41,7 +41,10 @@ class CreatePaquetDAO{
             :users_idusers,
             NOW(),
             :type_document_idtype_document,
-            :status_idstatus
+            COALESCE(
+                :status_idstatus,
+                (SELECT idstatus FROM status WHERE UPPER(name_status) = 'INEXISTANT' LIMIT 1)
+            )
         )
     ";
 
