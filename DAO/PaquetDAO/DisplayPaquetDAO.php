@@ -27,11 +27,14 @@ class DisplayPaquetDAO{
                         c.name_corpus AS corpusName,
                         p.filed_in_sip_idfiled_in_sip AS filedSip,
                         p.users_idusers AS usersId,
+                        u.last_name AS userNom,
+                        u.first_name AS userPrenom,
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
                         p.status_idstatus AS statusId
                     FROM paquet p
                     LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
+                    LEFT JOIN users u ON u.idusers = p.users_idusers
                     ORDER BY p.cote";
 
             $stmt = $this->pdo->query($sql);
@@ -60,11 +63,14 @@ class DisplayPaquetDAO{
                         c.name_corpus AS corpusName,
                         p.filed_in_sip_idfiled_in_sip AS filedSip,
                         p.users_idusers AS usersId,
+                        u.last_name AS userNom,
+                        u.first_name AS userPrenom,
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
                         p.status_idstatus AS statusId
                     FROM paquet p
                     LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
+                    LEFT JOIN users u ON u.idusers = p.users_idusers
                     WHERE p.cote = :cote
                     LIMIT 1";
 
