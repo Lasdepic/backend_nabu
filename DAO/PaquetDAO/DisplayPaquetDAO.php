@@ -31,10 +31,22 @@ class DisplayPaquetDAO{
                         u.first_name AS userPrenom,
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
-                        p.status_idstatus AS statusId
+                        CASE
+                            WHEN p.filed_in_sip_idfiled_in_sip = 1
+                                 AND (s.name_status IS NULL OR UPPER(s.name_status) = 'INEXISTANT')
+                                THEN COALESCE(ne.idstatus, p.status_idstatus)
+                            ELSE p.status_idstatus
+                        END AS statusId
                     FROM paquet p
                     LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
                     LEFT JOIN users u ON u.idusers = p.users_idusers
+                    LEFT JOIN status s ON s.idstatus = p.status_idstatus
+                    LEFT JOIN (
+                        SELECT idstatus
+                        FROM status
+                        WHERE UPPER(name_status) = 'NON_ENVOYE'
+                        LIMIT 1
+                    ) ne ON 1=1
                     ORDER BY p.cote";
 
             $stmt = $this->pdo->query($sql);
@@ -67,10 +79,22 @@ class DisplayPaquetDAO{
                         u.first_name AS userPrenom,
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
-                        p.status_idstatus AS statusId
+                        CASE
+                            WHEN p.filed_in_sip_idfiled_in_sip = 1
+                                 AND (s.name_status IS NULL OR UPPER(s.name_status) = 'INEXISTANT')
+                                THEN COALESCE(ne.idstatus, p.status_idstatus)
+                            ELSE p.status_idstatus
+                        END AS statusId
                     FROM paquet p
                     LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
                     LEFT JOIN users u ON u.idusers = p.users_idusers
+                    LEFT JOIN status s ON s.idstatus = p.status_idstatus
+                    LEFT JOIN (
+                        SELECT idstatus
+                        FROM status
+                        WHERE UPPER(name_status) = 'NON_ENVOYE'
+                        LIMIT 1
+                    ) ne ON 1=1
                     WHERE p.cote = :cote
                     LIMIT 1";
 

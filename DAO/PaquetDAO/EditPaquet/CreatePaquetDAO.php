@@ -43,7 +43,13 @@ class CreatePaquetDAO{
             :type_document_idtype_document,
             COALESCE(
                 :status_idstatus,
-                (SELECT idstatus FROM status WHERE UPPER(name_status) = 'INEXISTANT' LIMIT 1)
+                CASE
+                    WHEN :filed_in_sip_idfiled_in_sip = 1 THEN COALESCE(
+                        (SELECT idstatus FROM status WHERE UPPER(name_status) = 'NON_ENVOYE' LIMIT 1),
+                        (SELECT idstatus FROM status WHERE UPPER(name_status) = 'INEXISTANT' LIMIT 1)
+                    )
+                    ELSE (SELECT idstatus FROM status WHERE UPPER(name_status) = 'INEXISTANT' LIMIT 1)
+                END
             )
         )
     ";

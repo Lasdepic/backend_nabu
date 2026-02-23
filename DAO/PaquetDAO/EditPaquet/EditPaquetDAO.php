@@ -14,7 +14,21 @@ class EditPaquetDAO{
     public function editPackage(Paquet $paquet, $oldCote): array
     {
         $sql = "
-            UPDATE paquet SET
+            UPDATE paquet p
+            LEFT JOIN status s ON s.idstatus = :status_idstatus_check
+            LEFT JOIN (
+                SELECT idstatus
+                FROM status
+                WHERE UPPER(name_status) = 'NON_ENVOYE'
+                LIMIT 1
+            ) ne ON 1=1
+            LEFT JOIN (
+                SELECT idstatus
+                FROM status
+                WHERE UPPER(name_status) = 'INEXISTANT'
+                LIMIT 1
+            ) ie ON 1=1
+            SET
                 cote = :new_cote,
                 folder_name = :folder_name,
                 microfilm_image_directory = :microfilm_image_directory,
@@ -28,8 +42,13 @@ class EditPaquetDAO{
                 users_idusers = :users_idusers,
                 date_derniere_modification = NOW(),
                 type_document_idtype_document = :type_document_idtype_document,
-                status_idstatus = :status_idstatus
-            WHERE cote = :old_cote
+                status_idstatus = CASE
+                    WHEN :filed_in_sip_idfiled_in_sip = 1
+                         AND (:status_idstatus_value IS NULL OR s.name_status IS NULL OR UPPER(s.name_status) = 'INEXISTANT')
+                        THEN COALESCE(ne.idstatus, ie.idstatus, :status_idstatus_value)
+                    ELSE :status_idstatus_value
+                END
+            WHERE p.cote = :old_cote
         ";
 
         try {
@@ -47,7 +66,8 @@ class EditPaquetDAO{
                 'filed_in_sip_idfiled_in_sip' => (int)$paquet->filedSip,
                 'users_idusers' => $paquet->usersId,
                 'type_document_idtype_document' => $paquet->typeDocumentId,
-                'status_idstatus' => $paquet->statusId,
+                'status_idstatus_check' => $paquet->statusId,
+                'status_idstatus_value' => $paquet->statusId,
                 'old_cote' => $oldCote,
             ]);
             $rowCount = $stmt->rowCount();
