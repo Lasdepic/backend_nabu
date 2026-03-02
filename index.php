@@ -59,6 +59,21 @@ $statusController = new StatusController($statusDao);
 $page = $_GET["page"] ?? "user";
 $action = $_GET["action"] ?? null;
 
+// Support optionnel: action au format "delete-user:123"
+// Exemple: index.php?action=delete-user:1
+if (is_string($action) && str_contains($action, ':')) {
+    [$actionName, $actionId] = explode(':', $action, 2);
+    $actionName = trim($actionName);
+    $actionId = trim($actionId);
+
+    if ($actionName !== '') {
+        $action = $actionName;
+    }
+    if ($actionId !== '' && !isset($_GET['id'])) {
+        $_GET['id'] = $actionId;
+    }
+}
+
 switch ($action) {
     // Status
     case 'get-status-all':
