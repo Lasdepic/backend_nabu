@@ -32,8 +32,7 @@ class DisplayPaquetDAO{
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
                         CASE
-                            WHEN p.filed_in_sip_idfiled_in_sip = 1
-                                 AND (s.name_status IS NULL OR UPPER(s.name_status) = 'INEXISTANT')
+                            WHEN COALESCE(p.filed_in_sip_idfiled_in_sip, 0) <> 0
                                 THEN COALESCE(ne.idstatus, p.status_idstatus)
                             ELSE p.status_idstatus
                         END AS statusId
@@ -80,8 +79,7 @@ class DisplayPaquetDAO{
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
                         CASE
-                            WHEN p.filed_in_sip_idfiled_in_sip = 1
-                                 AND (s.name_status IS NULL OR UPPER(s.name_status) = 'INEXISTANT')
+                            WHEN COALESCE(p.filed_in_sip_idfiled_in_sip, 0) <> 0
                                 THEN COALESCE(ne.idstatus, p.status_idstatus)
                             ELSE p.status_idstatus
                         END AS statusId

@@ -43,8 +43,7 @@ class EditPaquetDAO{
                 date_derniere_modification = NOW(),
                 type_document_idtype_document = :type_document_idtype_document,
                 status_idstatus = CASE
-                    WHEN :filed_in_sip_idfiled_in_sip = 1
-                         AND (:status_idstatus_value IS NULL OR s.name_status IS NULL OR UPPER(s.name_status) = 'INEXISTANT')
+                    WHEN COALESCE(:filed_in_sip_idfiled_in_sip, 0) <> 0
                         THEN COALESCE(ne.idstatus, ie.idstatus, :status_idstatus_value)
                     ELSE :status_idstatus_value
                 END
