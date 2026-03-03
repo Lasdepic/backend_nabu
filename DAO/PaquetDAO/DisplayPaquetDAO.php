@@ -31,11 +31,7 @@ class DisplayPaquetDAO{
                         u.first_name AS userPrenom,
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
-                        CASE
-                            WHEN COALESCE(p.filed_in_sip_idfiled_in_sip, 0) <> 0
-                                THEN COALESCE(ne.idstatus, p.status_idstatus)
-                            ELSE p.status_idstatus
-                        END AS statusId
+                        COALESCE(p.status_idstatus, ie.idstatus) AS statusId
                     FROM paquet p
                     LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
                     LEFT JOIN users u ON u.idusers = p.users_idusers
@@ -43,9 +39,9 @@ class DisplayPaquetDAO{
                     LEFT JOIN (
                         SELECT idstatus
                         FROM status
-                        WHERE UPPER(name_status) = 'NON_ENVOYE'
+                        WHERE UPPER(name_status) = 'INEXISTANT'
                         LIMIT 1
-                    ) ne ON 1=1
+                    ) ie ON 1=1
                     ORDER BY p.cote";
 
             $stmt = $this->pdo->query($sql);
@@ -78,11 +74,7 @@ class DisplayPaquetDAO{
                         u.first_name AS userPrenom,
                         p.date_derniere_modification AS lastmodifDate,
                         p.type_document_idtype_document AS typeDocumentId,
-                        CASE
-                            WHEN COALESCE(p.filed_in_sip_idfiled_in_sip, 0) <> 0
-                                THEN COALESCE(ne.idstatus, p.status_idstatus)
-                            ELSE p.status_idstatus
-                        END AS statusId
+                        COALESCE(p.status_idstatus, ie.idstatus) AS statusId
                     FROM paquet p
                     LEFT JOIN corpus c ON c.idcorpus = p.corpus_idcorpus
                     LEFT JOIN users u ON u.idusers = p.users_idusers
@@ -90,9 +82,9 @@ class DisplayPaquetDAO{
                     LEFT JOIN (
                         SELECT idstatus
                         FROM status
-                        WHERE UPPER(name_status) = 'NON_ENVOYE'
+                        WHERE UPPER(name_status) = 'INEXISTANT'
                         LIMIT 1
-                    ) ne ON 1=1
+                    ) ie ON 1=1
                     WHERE p.cote = :cote
                     LIMIT 1";
 
