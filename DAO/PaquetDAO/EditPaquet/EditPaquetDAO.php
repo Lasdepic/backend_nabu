@@ -15,7 +15,6 @@ class EditPaquetDAO{
     {
         $sql = "
             UPDATE paquet p
-            LEFT JOIN status s ON s.idstatus = :status_idstatus_check
             LEFT JOIN (
                 SELECT idstatus
                 FROM status
@@ -43,9 +42,9 @@ class EditPaquetDAO{
                 date_derniere_modification = NOW(),
                 type_document_idtype_document = :type_document_idtype_document,
                 status_idstatus = CASE
-                    WHEN COALESCE(:filed_in_sip_idfiled_in_sip, 0) <> 0
-                        THEN COALESCE(ne.idstatus, ie.idstatus, :status_idstatus_value)
-                    ELSE :status_idstatus_value
+                    WHEN :status_idstatus_value IS NULL AND COALESCE(:filed_in_sip_idfiled_in_sip, 0) <> 0
+                        THEN COALESCE(ne.idstatus, ie.idstatus, p.status_idstatus)
+                    ELSE COALESCE(:status_idstatus_value, p.status_idstatus, ie.idstatus)
                 END
             WHERE p.cote = :old_cote
         ";
@@ -65,7 +64,6 @@ class EditPaquetDAO{
                 'filed_in_sip_idfiled_in_sip' => (int)$paquet->filedSip,
                 'users_idusers' => $paquet->usersId,
                 'type_document_idtype_document' => $paquet->typeDocumentId,
-                'status_idstatus_check' => $paquet->statusId,
                 'status_idstatus_value' => $paquet->statusId,
                 'old_cote' => $oldCote,
             ]);
